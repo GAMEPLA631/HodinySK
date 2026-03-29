@@ -2,7 +2,7 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Chronos Global - Ultra Modern Timepiece</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;500;900&display=swap" rel="stylesheet">
@@ -13,14 +13,20 @@
             --bg: #030303;
         }
 
+        * {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
         body {
             background-color: var(--bg);
             color: white;
             font-family: 'Inter', sans-serif;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
+            margin: 0;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
         .header-font {
@@ -34,31 +40,40 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80vw;
-            height: 80vw;
+            width: 100vw;
+            height: 100vw;
             background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
             z-index: -1;
-            filter: blur(80px);
-            transition: background 2s ease;
+            filter: blur(60px);
+            pointer-events: none;
         }
 
         /* Ultra moderný sklenený panel */
         .main-stage {
             background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(40px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 40px;
+            border-radius: 30px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: all 0.5s ease;
+            width: 100%;
+        }
+
+        /* Analógové hodiny - responzívne */
+        .clock-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
             transition: all 0.5s ease;
         }
 
-        /* Analógové hodiny */
-        .clock-container {
-            position: relative;
-            width: 320px;
-            height: 320px;
-            margin: 0 auto;
-            transition: all 0.5s ease;
+        @media (max-width: 480px) {
+            .clock-container {
+                width: 220px;
+                height: 220px;
+            }
         }
 
         .clock-outer {
@@ -81,9 +96,9 @@
             transition: transform 0.1s cubic-bezier(0.4, 2.3, 0.3, 1);
         }
 
-        .h-hand { width: 6px; height: 80px; background: white; z-index: 3; }
-        .m-hand { width: 4px; height: 110px; background: var(--accent); z-index: 4; }
-        .s-hand { width: 1.5px; height: 130px; background: #ff0055; z-index: 5; }
+        .h-hand { width: 6px; height: 30%; background: white; z-index: 3; }
+        .m-hand { width: 4px; height: 40%; background: var(--accent); z-index: 4; }
+        .s-hand { width: 1.5px; height: 45%; background: #ff0055; z-index: 5; }
 
         .center-dot {
             width: 10px;
@@ -96,7 +111,7 @@
 
         /* Digitálny čas */
         .digital-time {
-            font-size: 8rem;
+            font-size: clamp(3.5rem, 15vw, 8rem);
             font-weight: 900;
             line-height: 1;
             background: linear-gradient(to bottom, #fff 50%, #666 100%);
@@ -110,7 +125,7 @@
         .mode-digital-only .clock-container { display: none; }
         .mode-analog-only .digital-time { display: none; }
 
-        /* Vylepšený Dropdown / Select */
+        /* Mobilne optimalizovaný Select */
         .search-container {
             position: relative;
             width: 100%;
@@ -119,52 +134,32 @@
 
         select {
             appearance: none;
-            background: rgba(15, 15, 15, 0.8) !important; /* Tmavé pozadie */
+            background: rgba(15, 15, 15, 0.9) !important;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 18px 30px;
-            border-radius: 24px;
+            padding: 14px 24px;
+            border-radius: 18px;
             color: white;
             width: 100%;
             cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 500;
+            font-size: 1rem;
             outline: none;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        select:hover {
-            border-color: var(--accent);
-            background: rgba(20, 20, 20, 0.95) !important;
-            transform: translateY(-2px);
+            transition: all 0.3s;
         }
 
         select:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-soft);
         }
 
-        /* Štýlovanie možností vnútri selectu (obmedzené prehliadačom, ale lepšie ako biele) */
         option {
             background-color: #111;
             color: white;
-            padding: 10px;
-        }
-
-        optgroup {
-            background-color: #080808;
-            color: var(--accent);
-            font-style: normal;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .tag {
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.65rem;
             text-transform: uppercase;
             font-weight: 700;
             letter-spacing: 0.1em;
@@ -176,27 +171,27 @@
         .info-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            gap: 12px;
             width: 100%;
-            margin-top: 40px;
+            margin-top: 24px;
         }
 
         .info-box {
             text-align: center;
-            padding: 20px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 15px 10px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .view-mode-btn {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-size: 0.7rem;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.65rem;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -208,24 +203,25 @@
         }
 
         @media (max-width: 768px) {
-            .digital-time { font-size: 4rem; }
             .info-grid { grid-template-columns: 1fr; }
+            .digital-time { margin-top: 1rem; }
+            body { overflow-y: auto; }
         }
     </style>
 </head>
-<body class="p-6">
+<body class="p-4 md:p-6">
     <div class="bg-glow" id="glow"></div>
 
-    <header class="flex justify-between items-center mb-6 w-full max-w-7xl mx-auto">
-        <div class="header-font text-lg font-bold tracking-widest">CHRONOS<span class="text-cyan-400">.</span>GLOBAL</div>
+    <header class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 w-full max-w-7xl mx-auto">
+        <div class="header-font text-base md:text-lg font-bold tracking-widest">CHRONOS<span class="text-cyan-400">.</span>GLOBAL</div>
         
-        <div class="flex items-center gap-4">
-            <div class="flex gap-2 bg-white/5 p-1 rounded-xl">
+        <div class="flex items-center gap-3">
+            <div class="flex gap-1 bg-white/5 p-1 rounded-xl">
                 <button onclick="setViewMode('hybrid')" id="btn-hybrid" class="view-mode-btn active">Hybrid</button>
                 <button onclick="setViewMode('digital')" id="btn-digital" class="view-mode-btn">Digital</button>
                 <button onclick="setViewMode('analog')" id="btn-analog" class="view-mode-btn">Analog</button>
             </div>
-            <select id="langSelector" class="!py-2 !px-4 !text-sm !w-auto !bg-black/40 !border-white/10" onchange="changeLanguage()">
+            <select id="langSelector" class="!py-1.5 !px-3 !text-xs !w-auto !bg-black/40 !border-white/10" onchange="changeLanguage()">
                 <option value="sk">SK</option>
                 <option value="en">EN</option>
                 <option value="de">DE</option>
@@ -236,18 +232,18 @@
 
     <main class="flex-1 flex flex-col items-center justify-center max-w-5xl mx-auto w-full">
         <!-- Search Section -->
-        <div class="search-container mb-8">
+        <div class="search-container mb-6">
             <select id="timezoneSelect" onchange="handleTimezoneChange()">
                 <!-- JS Population -->
             </select>
-            <div class="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 text-xs text-cyan-400">▼</div>
+            <div class="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 text-[10px] text-cyan-400">▼</div>
         </div>
 
         <!-- Clock Stage -->
-        <div id="mainStage" class="main-stage w-full p-10 md:p-16 flex flex-col items-center relative overflow-hidden">
-            <div id="dayNightLabel" class="absolute top-8 left-10 text-[10px] uppercase tracking-[0.4em] opacity-40">--</div>
+        <div id="mainStage" class="main-stage p-6 md:p-12 flex flex-col items-center relative overflow-hidden">
+            <div id="dayNightLabel" class="absolute top-6 left-8 text-[9px] uppercase tracking-[0.4em] opacity-40">--</div>
             
-            <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-16 w-full">
                 <!-- Analog -->
                 <div class="clock-container" id="clockContainer">
                     <div class="clock-outer">
@@ -259,36 +255,36 @@
                 </div>
 
                 <!-- Digital & Info -->
-                <div class="text-center lg:text-left">
-                    <div class="flex items-center gap-4 justify-center lg:justify-start mb-2">
-                        <h2 id="cityName" class="header-font text-2xl font-bold">LOKÁLNY ČAS</h2>
+                <div class="text-center lg:text-left flex-1">
+                    <div class="flex items-center gap-3 justify-center lg:justify-start mb-1">
+                        <h2 id="cityName" class="header-font text-lg md:text-2xl font-bold">LOKÁLNY ČAS</h2>
                         <span id="dstTag" class="tag tag-standard">--</span>
                     </div>
                     <div class="digital-time" id="digitalTime">00:00:00</div>
-                    <p id="fullDate" class="text-xl text-gray-500 mt-2 font-light italic">--</p>
+                    <p id="fullDate" class="text-sm md:text-xl text-gray-500 mt-1 font-light italic">--</p>
                 </div>
             </div>
 
             <!-- Stats Grid -->
             <div class="info-grid">
                 <div class="info-box">
-                    <p class="text-[10px] uppercase text-gray-500 tracking-widest mb-1" id="label-utc">Posun voči UTC</p>
-                    <p class="text-xl font-bold text-cyan-400" id="utc-offset">+0:00</p>
+                    <p class="text-[9px] uppercase text-gray-500 tracking-widest mb-1" id="label-utc">Posun voči UTC</p>
+                    <p class="text-base md:text-xl font-bold text-cyan-400" id="utc-offset">+0:00</p>
                 </div>
                 <div class="info-box">
-                    <p class="text-[10px] uppercase text-gray-500 tracking-widest mb-1" id="label-update">Sila signálu</p>
-                    <p class="text-xl font-bold" id="signal-status">AKTÍVNY</p>
+                    <p class="text-[9px] uppercase text-gray-500 tracking-widest mb-1" id="label-update">Sila signálu</p>
+                    <p class="text-base md:text-xl font-bold" id="signal-status">AKTÍVNY</p>
                 </div>
                 <div class="info-box">
-                    <p class="text-[10px] uppercase text-gray-500 tracking-widest mb-1" id="label-next">Zmena času</p>
-                    <p class="text-xl font-bold" id="next-change">--</p>
+                    <p class="text-[9px] uppercase text-gray-500 tracking-widest mb-1" id="label-next">Zmena času</p>
+                    <p class="text-base md:text-xl font-bold" id="next-change">--</p>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="mt-8 text-center text-[10px] text-gray-600 uppercase tracking-widest">
-        Quantum Engine v5.0 // Multiversal Time Sync // No Latency
+    <footer class="mt-6 mb-4 text-center text-[9px] text-gray-600 uppercase tracking-widest">
+        Quantum Engine v6.0 Mobile // Multiversal Sync
     </footer>
 
     <script>
@@ -308,13 +304,18 @@
         function init() {
             populateTimezones();
             updateUI();
+            
+            // Auto-detekcia mobilného režimu pri štarte pre malé displeje
+            if (window.innerWidth < 480) {
+                setViewMode('digital');
+            }
+
             setInterval(tick, 1000);
             tick();
         }
 
         function populateTimezones() {
             const select = document.getElementById('timezoneSelect');
-            
             const groups = {};
             timezones.forEach(tz => {
                 const continent = tz.split('/')[0];
@@ -325,7 +326,6 @@
             for (const continent in groups) {
                 const optGroup = document.createElement('optgroup');
                 optGroup.label = continent.toUpperCase();
-                
                 groups[continent].forEach(tz => {
                     const opt = document.createElement('option');
                     opt.value = tz;
@@ -342,7 +342,7 @@
         function setViewMode(mode) {
             viewMode = mode;
             const stage = document.getElementById('mainStage');
-            stage.className = `main-stage w-full p-10 md:p-16 flex flex-col items-center relative overflow-hidden mode-${mode}-only`;
+            stage.className = `main-stage p-6 md:p-12 flex flex-col items-center relative overflow-hidden mode-${mode}-only`;
             
             ['hybrid', 'digital', 'analog'].forEach(m => {
                 document.getElementById(`btn-${m}`).classList.toggle('active', m === mode);
@@ -371,7 +371,6 @@
 
         function tick() {
             const now = new Date();
-            
             const formatter = new Intl.DateTimeFormat('en-US', {
                 timeZone: currentTimezone,
                 hour: 'numeric', minute: 'numeric', second: 'numeric',
