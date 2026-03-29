@@ -110,7 +110,7 @@
         .mode-digital-only .clock-container { display: none; }
         .mode-analog-only .digital-time { display: none; }
 
-        /* Custom Dropdown */
+        /* Vylepšený Dropdown / Select */
         .search-container {
             position: relative;
             width: 100%;
@@ -119,21 +119,46 @@
 
         select {
             appearance: none;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 15px 25px;
-            border-radius: 20px;
+            background: rgba(15, 15, 15, 0.8) !important; /* Tmavé pozadie */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 18px 30px;
+            border-radius: 24px;
             color: white;
             width: 100%;
             cursor: pointer;
             font-size: 1.1rem;
+            font-weight: 500;
             outline: none;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        select:hover {
+            border-color: var(--accent);
+            background: rgba(20, 20, 20, 0.95) !important;
+            transform: translateY(-2px);
         }
 
         select:focus {
             border-color: var(--accent);
-            background: rgba(0, 243, 255, 0.05);
+            box-shadow: 0 0 20px var(--accent-soft);
+        }
+
+        /* Štýlovanie možností vnútri selectu (obmedzené prehliadačom, ale lepšie ako biele) */
+        option {
+            background-color: #111;
+            color: white;
+            padding: 10px;
+        }
+
+        optgroup {
+            background-color: #080808;
+            color: var(--accent);
+            font-style: normal;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .tag {
@@ -161,6 +186,7 @@
             padding: 20px;
             border-radius: 20px;
             background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
         }
 
         .view-mode-btn {
@@ -199,7 +225,7 @@
                 <button onclick="setViewMode('digital')" id="btn-digital" class="view-mode-btn">Digital</button>
                 <button onclick="setViewMode('analog')" id="btn-analog" class="view-mode-btn">Analog</button>
             </div>
-            <select id="langSelector" class="!py-2 !px-4 !text-sm !w-auto" onchange="changeLanguage()">
+            <select id="langSelector" class="!py-2 !px-4 !text-sm !w-auto !bg-black/40 !border-white/10" onchange="changeLanguage()">
                 <option value="sk">SK</option>
                 <option value="en">EN</option>
                 <option value="de">DE</option>
@@ -214,7 +240,7 @@
             <select id="timezoneSelect" onchange="handleTimezoneChange()">
                 <!-- JS Population -->
             </select>
-            <div class="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 text-xs">▼</div>
+            <div class="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 text-xs text-cyan-400">▼</div>
         </div>
 
         <!-- Clock Stage -->
@@ -275,7 +301,7 @@
 
         let currentLang = 'sk';
         let currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        let viewMode = 'hybrid'; // hybrid, digital, analog
+        let viewMode = 'hybrid'; 
 
         const timezones = Intl.supportedValuesOf('timeZone');
 
@@ -289,7 +315,6 @@
         function populateTimezones() {
             const select = document.getElementById('timezoneSelect');
             
-            // Triedenie podľa kontinentov
             const groups = {};
             timezones.forEach(tz => {
                 const continent = tz.split('/')[0];
@@ -319,7 +344,6 @@
             const stage = document.getElementById('mainStage');
             stage.className = `main-stage w-full p-10 md:p-16 flex flex-col items-center relative overflow-hidden mode-${mode}-only`;
             
-            // Update buttons
             ['hybrid', 'digital', 'analog'].forEach(m => {
                 document.getElementById(`btn-${m}`).classList.toggle('active', m === mode);
             });
@@ -360,17 +384,14 @@
             const m = parseInt(parts.find(p => p.type === 'minute').value);
             const s = parseInt(parts.find(p => p.type === 'second').value);
             
-            // Digitálny display
             document.getElementById('digitalTime').textContent = 
                 `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
             
-            // Dátum
             const dateStr = now.toLocaleDateString(currentLang === 'sk' ? 'sk-SK' : 'en-US', { 
                 timeZone: currentTimezone, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
             });
             document.getElementById('fullDate').textContent = dateStr;
 
-            // Analógové ručičky
             const sDeg = (s / 60) * 360;
             const mDeg = (m / 60) * 360 + (s / 60) * 6;
             const hDeg = (h % 12 / 12) * 360 + (m / 60) * 30;
@@ -381,7 +402,6 @@
 
             updateMeta(now);
             
-            // Atmosféra
             const isNight = h < 6 || h > 19;
             document.getElementById('glow').style.background = isNight 
                 ? 'radial-gradient(circle, rgba(188, 19, 254, 0.15) 0%, transparent 70%)'
