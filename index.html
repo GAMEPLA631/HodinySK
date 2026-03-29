@@ -3,46 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chronos Global - Futuristické Svetové Hodiny</title>
+    <title>Chronos Global - Ultra Modern Timepiece</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;500;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --neon-cyan: #00f3ff;
-            --neon-purple: #bc13fe;
-            --bg-dark: #050505;
+            --accent: #00f3ff;
+            --accent-soft: rgba(0, 243, 255, 0.2);
+            --bg: #030303;
         }
 
         body {
-            background-color: var(--bg-dark);
+            background-color: var(--bg);
             color: white;
-            font-family: 'Rajdhani', sans-serif;
-            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        .futuristic-font {
-            font-family: 'Orbitron', sans-serif;
+        .header-font {
+            font-family: 'Syncopate', sans-serif;
+            letter-spacing: 0.3em;
         }
 
-        /* Sklenený efekt */
-        .glass {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        /* Dynamické gradientové pozadie */
+        .bg-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vw;
+            height: 80vw;
+            background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(80px);
+            transition: background 2s ease;
+        }
+
+        /* Ultra moderný sklenený panel */
+        .main-stage {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: all 0.5s ease;
         }
 
         /* Analógové hodiny */
-        .clock-face {
-            width: 200px;
-            height: 200px;
-            border: 4px solid var(--neon-cyan);
+        .clock-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto;
+            transition: all 0.5s ease;
+        }
+
+        .clock-outer {
+            width: 100%;
+            height: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 50%;
             position: relative;
-            margin: 20px auto;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2), inset 0 0 20px rgba(0, 243, 255, 0.1);
-            transition: all 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .hand {
@@ -50,345 +77,347 @@
             bottom: 50%;
             left: 50%;
             transform-origin: bottom;
-            border-radius: 10px;
-            transition: transform 0.05s cubic-bezier(0.1, 2.7, 0.58, 1);
+            border-radius: 20px;
+            transition: transform 0.1s cubic-bezier(0.4, 2.3, 0.3, 1);
         }
 
-        .hour-hand { width: 6px; height: 50px; background: white; z-index: 3; }
-        .min-hand { width: 4px; height: 70px; background: var(--neon-cyan); z-index: 4; }
-        .sec-hand { width: 2px; height: 85px; background: var(--neon-purple); z-index: 5; }
+        .h-hand { width: 6px; height: 80px; background: white; z-index: 3; }
+        .m-hand { width: 4px; height: 110px; background: var(--accent); z-index: 4; }
+        .s-hand { width: 1.5px; height: 130px; background: #ff0055; z-index: 5; }
 
-        .clock-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 12px;
-            height: 12px;
+        .center-dot {
+            width: 10px;
+            height: 10px;
             background: white;
             border-radius: 50%;
-            transform: translate(-50%, -50%);
             z-index: 10;
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        /* Digitálny čas */
+        .digital-time {
+            font-size: 8rem;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(to bottom, #fff 50%, #666 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-variant-numeric: tabular-nums;
+            transition: all 0.5s ease;
         }
 
         /* Režimy zobrazenia */
-        .mode-digital-only .clock-face {
-            display: none;
-        }
-        .mode-digital-only .digital-display {
-            font-size: 5rem;
-            margin: 40px 0;
-            text-shadow: 0 0 20px var(--neon-cyan);
-        }
+        .mode-digital-only .clock-container { display: none; }
+        .mode-analog-only .digital-time { display: none; }
 
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
-
-        .live-indicator {
-            width: 10px;
-            height: 10px;
-            background: #00ff00;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-            box-shadow: 0 0 8px #00ff00;
-            animation: pulse 2s infinite;
+        /* Custom Dropdown */
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
         }
 
         select {
-            background: #111;
-            color: var(--neon-cyan);
-            border: 1px solid var(--neon-cyan);
-            padding: 8px;
-            border-radius: 5px;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 20px;
+            color: white;
+            width: 100%;
+            cursor: pointer;
+            font-size: 1.1rem;
             outline: none;
+            transition: all 0.3s;
         }
 
-        .grid-bg {
-            background-image: linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
+        select:focus {
+            border-color: var(--accent);
+            background: rgba(0, 243, 255, 0.05);
         }
 
-        .toggle-btn {
-            background: rgba(0, 243, 255, 0.1);
-            border: 1px solid var(--neon-cyan);
-            color: var(--neon-cyan);
+        .tag {
             padding: 4px 12px;
-            border-radius: 15px;
+            border-radius: 8px;
             font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        .tag-dst { background: var(--accent); color: black; }
+        .tag-standard { background: #333; color: #999; }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            margin-top: 40px;
+        }
+
+        .info-box {
+            text-align: center;
+            padding: 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .view-mode-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
             cursor: pointer;
             transition: all 0.3s;
         }
-        .toggle-btn:hover {
-            background: var(--neon-cyan);
+
+        .view-mode-btn.active {
+            background: var(--accent);
             color: black;
+            border-color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .digital-time { font-size: 4rem; }
+            .info-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="grid-bg"></div>
+<body class="p-6">
+    <div class="bg-glow" id="glow"></div>
 
-    <header class="max-w-6xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div>
-            <h1 class="futuristic-font text-4xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
-                CHRONOS GLOBAL
-            </h1>
-            <p class="text-sm text-gray-400 tracking-widest uppercase mt-1" id="ui-subtitle">Svetový časový engine v3.0</p>
-        </div>
-
-        <div class="flex gap-4 items-center">
-            <div class="flex flex-col items-end">
-                <span class="text-xs text-gray-500 uppercase" id="ui-lang-label">Jazyk systému</span>
-                <select id="langSelector" onchange="changeLanguage()">
-                    <option value="sk">Slovenčina</option>
-                    <option value="en">English</option>
-                    <option value="de">Deutsch</option>
-                    <option value="fr">Français</option>
-                    <option value="es">Español</option>
-                    <option value="jp">日本語</option>
-                    <option value="cn">中文</option>
-                    <option value="ru">Русский</option>
-                </select>
+    <header class="flex justify-between items-center mb-6 w-full max-w-7xl mx-auto">
+        <div class="header-font text-lg font-bold tracking-widest">CHRONOS<span class="text-cyan-400">.</span>GLOBAL</div>
+        
+        <div class="flex items-center gap-4">
+            <div class="flex gap-2 bg-white/5 p-1 rounded-xl">
+                <button onclick="setViewMode('hybrid')" id="btn-hybrid" class="view-mode-btn active">Hybrid</button>
+                <button onclick="setViewMode('digital')" id="btn-digital" class="view-mode-btn">Digital</button>
+                <button onclick="setViewMode('analog')" id="btn-analog" class="view-mode-btn">Analog</button>
             </div>
-            <button onclick="addClock()" class="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-2 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg shadow-cyan-900/20">
-                + <span id="ui-add-btn">Pridať krajinu</span>
-            </button>
+            <select id="langSelector" class="!py-2 !px-4 !text-sm !w-auto" onchange="changeLanguage()">
+                <option value="sk">SK</option>
+                <option value="en">EN</option>
+                <option value="de">DE</option>
+                <option value="jp">JP</option>
+            </select>
         </div>
     </header>
 
-    <main id="clocksGrid" class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- Karty hodín sa vygenerujú tu -->
-    </main>
-
-    <!-- Modal pre výber krajiny -->
-    <div id="modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center z-50">
-        <div class="glass p-8 w-full max-w-md border-cyan-500/50">
-            <h2 class="futuristic-font text-2xl mb-6 text-cyan-400" id="ui-modal-title">Vyberte región</h2>
-            <select id="timezoneSelect" class="w-full mb-6 text-lg">
-                <!-- Naplnené cez JS -->
+    <main class="flex-1 flex flex-col items-center justify-center max-w-5xl mx-auto w-full">
+        <!-- Search Section -->
+        <div class="search-container mb-8">
+            <select id="timezoneSelect" onchange="handleTimezoneChange()">
+                <!-- JS Population -->
             </select>
-            <div class="flex justify-end gap-4">
-                <button onclick="closeModal()" class="text-gray-400 hover:text-white" id="ui-cancel">Zrušiť</button>
-                <button onclick="confirmAddClock()" class="bg-cyan-500 px-6 py-2 rounded-lg font-bold" id="ui-confirm">Pridať</button>
+            <div class="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 text-xs">▼</div>
+        </div>
+
+        <!-- Clock Stage -->
+        <div id="mainStage" class="main-stage w-full p-10 md:p-16 flex flex-col items-center relative overflow-hidden">
+            <div id="dayNightLabel" class="absolute top-8 left-10 text-[10px] uppercase tracking-[0.4em] opacity-40">--</div>
+            
+            <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                <!-- Analog -->
+                <div class="clock-container" id="clockContainer">
+                    <div class="clock-outer">
+                        <div class="center-dot"></div>
+                        <div class="hand h-hand" id="h-hand"></div>
+                        <div class="hand m-hand" id="m-hand"></div>
+                        <div class="hand s-hand" id="s-hand"></div>
+                    </div>
+                </div>
+
+                <!-- Digital & Info -->
+                <div class="text-center lg:text-left">
+                    <div class="flex items-center gap-4 justify-center lg:justify-start mb-2">
+                        <h2 id="cityName" class="header-font text-2xl font-bold">LOKÁLNY ČAS</h2>
+                        <span id="dstTag" class="tag tag-standard">--</span>
+                    </div>
+                    <div class="digital-time" id="digitalTime">00:00:00</div>
+                    <p id="fullDate" class="text-xl text-gray-500 mt-2 font-light italic">--</p>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="info-grid">
+                <div class="info-box">
+                    <p class="text-[10px] uppercase text-gray-500 tracking-widest mb-1" id="label-utc">Posun voči UTC</p>
+                    <p class="text-xl font-bold text-cyan-400" id="utc-offset">+0:00</p>
+                </div>
+                <div class="info-box">
+                    <p class="text-[10px] uppercase text-gray-500 tracking-widest mb-1" id="label-update">Sila signálu</p>
+                    <p class="text-xl font-bold" id="signal-status">AKTÍVNY</p>
+                </div>
+                <div class="info-box">
+                    <p class="text-[10px] uppercase text-gray-500 tracking-widest mb-1" id="label-next">Zmena času</p>
+                    <p class="text-xl font-bold" id="next-change">--</p>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
+
+    <footer class="mt-8 text-center text-[10px] text-gray-600 uppercase tracking-widest">
+        Quantum Engine v5.0 // Multiversal Time Sync // No Latency
+    </footer>
 
     <script>
         const translations = {
-            sk: { subtitle: "Svetový časový engine v3.0", langLabel: "Jazyk systému", addBtn: "Pridať krajinu", modalTitle: "Vyberte región", cancel: "Zrušiť", confirm: "Pridať", update: "Posledná aktualizácia", dstActive: "DST Aktívne (Letný čas)", dstInactive: "Štandardný čas (Zimný)", modeLabel: "Prepnúť režim" },
-            en: { subtitle: "World Time Engine v3.0", langLabel: "System Language", addBtn: "Add Country", modalTitle: "Select Region", cancel: "Cancel", confirm: "Add", update: "Last Update", dstActive: "DST Active (Summer)", dstInactive: "Standard Time (Winter)", modeLabel: "Toggle Mode" },
-            de: { subtitle: "Weltzeit-Engine v3.0", langLabel: "Systemsprache", addBtn: "Land hinzufügen", modalTitle: "Region wählen", cancel: "Abbrechen", confirm: "Hinzufügen", update: "Letztes Update", dstActive: "Sommerzeit aktiv", dstInactive: "Standardzeit (Winter)", modeLabel: "Modus umschalten" },
-            jp: { subtitle: "世界時間エンジン v3.0", langLabel: "システム言語", addBtn: "国を追加", modalTitle: "地域を選択", cancel: "キャンセル", confirm: "追加", update: "最終更新", dstActive: "夏時間有効", dstInactive: "標準時間", modeLabel: "モード切替" }
+            sk: { utc: "Posun voči UTC", update: "Motor času", next: "Ďalšia zmena", signal: "AKTÍVNY", dstActive: "Letný čas", dstInactive: "Zimný čas", day: "Deň", night: "Noc" },
+            en: { utc: "UTC Offset", update: "Time Engine", next: "Next Change", signal: "ACTIVE", dstActive: "Daylight Saving", dstInactive: "Standard Time", day: "Day", night: "Night" },
+            de: { utc: "UTC Offset", update: "Zeitmotor", next: "Nächste Änderung", signal: "AKTIV", dstActive: "Sommerzeit", dstInactive: "Winterzeit", day: "Tag", night: "Nacht" },
+            jp: { utc: "UTCオフセット", update: "タイムエンジン", next: "次の変更", signal: "アクティブ", dstActive: "夏時間", dstInactive: "標準時", day: "昼", night: "夜" }
         };
 
         let currentLang = 'sk';
-        let activeClocks = [
-            { id: 'local', timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, name: 'Lokálny čas', mode: 'hybrid' },
-            { id: 'new-york', timezone: 'America/New_York', name: 'New York', mode: 'hybrid' },
-            { id: 'tokyo', timezone: 'Asia/Tokyo', name: 'Tokyo', mode: 'hybrid' }
-        ];
+        let currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        let viewMode = 'hybrid'; // hybrid, digital, analog
 
         const timezones = Intl.supportedValuesOf('timeZone');
 
         function init() {
             populateTimezones();
-            renderClocks();
-            setInterval(updateTimes, 1000);
-            updateUIStrings();
+            updateUI();
+            setInterval(tick, 1000);
+            tick();
         }
 
         function populateTimezones() {
             const select = document.getElementById('timezoneSelect');
+            
+            // Triedenie podľa kontinentov
+            const groups = {};
             timezones.forEach(tz => {
-                const opt = document.createElement('option');
-                opt.value = tz;
-                opt.textContent = tz.replace(/_/g, ' ');
-                select.appendChild(opt);
+                const continent = tz.split('/')[0];
+                if (!groups[continent]) groups[continent] = [];
+                groups[continent].push(tz);
+            });
+
+            for (const continent in groups) {
+                const optGroup = document.createElement('optgroup');
+                optGroup.label = continent.toUpperCase();
+                
+                groups[continent].forEach(tz => {
+                    const opt = document.createElement('option');
+                    opt.value = tz;
+                    const parts = tz.split('/');
+                    const city = parts[parts.length - 1].replace(/_/g, ' ');
+                    opt.textContent = city;
+                    if (tz === currentTimezone) opt.selected = true;
+                    optGroup.appendChild(opt);
+                });
+                select.appendChild(optGroup);
+            }
+        }
+
+        function setViewMode(mode) {
+            viewMode = mode;
+            const stage = document.getElementById('mainStage');
+            stage.className = `main-stage w-full p-10 md:p-16 flex flex-col items-center relative overflow-hidden mode-${mode}-only`;
+            
+            // Update buttons
+            ['hybrid', 'digital', 'analog'].forEach(m => {
+                document.getElementById(`btn-${m}`).classList.toggle('active', m === mode);
             });
         }
 
-        function updateUIStrings() {
-            const t = translations[currentLang] || translations['en'];
-            document.getElementById('ui-subtitle').textContent = t.subtitle;
-            document.getElementById('ui-lang-label').textContent = t.langLabel;
-            document.getElementById('ui-add-btn').textContent = t.addBtn;
-            document.getElementById('ui-modal-title').textContent = t.modalTitle;
-            document.getElementById('ui-cancel').textContent = t.cancel;
-            document.getElementById('ui-confirm').textContent = t.confirm;
+        function handleTimezoneChange() {
+            currentTimezone = document.getElementById('timezoneSelect').value;
+            const parts = currentTimezone.split('/');
+            document.getElementById('cityName').textContent = parts[parts.length - 1].replace(/_/g, ' ').toUpperCase();
+            updateUI();
         }
 
         function changeLanguage() {
             currentLang = document.getElementById('langSelector').value;
-            updateUIStrings();
-            renderClocks();
+            updateUI();
         }
 
-        function toggleMode(id) {
-            const clock = activeClocks.find(c => c.id === id);
-            if (clock) {
-                clock.mode = clock.mode === 'hybrid' ? 'digital-only' : 'hybrid';
-                renderClocks();
-            }
+        function updateUI() {
+            const t = translations[currentLang];
+            document.getElementById('label-utc').textContent = t.utc;
+            document.getElementById('label-update').textContent = t.update;
+            document.getElementById('label-next').textContent = t.next;
+            document.getElementById('signal-status').textContent = t.signal;
         }
 
-        function renderClocks() {
-            const grid = document.getElementById('clocksGrid');
-            grid.innerHTML = '';
+        function tick() {
+            const now = new Date();
             
-            activeClocks.forEach(clock => {
-                const card = document.createElement('div');
-                const isDigitalOnly = clock.mode === 'digital-only';
-                card.className = `glass p-6 relative overflow-hidden group hover:border-cyan-500/50 transition-all ${isDigitalOnly ? 'mode-digital-only' : ''}`;
-                card.id = `card-${clock.id}`;
-                
-                const t = translations[currentLang] || translations['en'];
-
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="futuristic-font text-xl text-cyan-400 uppercase tracking-wider">${clock.name}</h3>
-                            <p class="text-xs text-gray-500">${clock.timezone}</p>
-                        </div>
-                        <div class="flex gap-2">
-                             <button onclick="toggleMode('${clock.id}')" class="toggle-btn uppercase futuristic-font">
-                                ${isDigitalOnly ? 'Analog' : 'Digital'}
-                            </button>
-                            <button onclick="removeClock('${clock.id}')" class="text-gray-600 hover:text-red-500 transition-colors text-xl">✕</button>
-                        </div>
-                    </div>
-
-                    <div class="clock-face" id="analog-${clock.id}">
-                        <div class="clock-center"></div>
-                        <div class="hand hour-hand"></div>
-                        <div class="hand min-hand"></div>
-                        <div class="hand sec-hand"></div>
-                    </div>
-
-                    <div class="text-center mt-6">
-                        <div class="futuristic-font ${isDigitalOnly ? 'text-6xl my-10' : 'text-4xl'} font-bold tracking-widest text-white mb-2 digital-display transition-all" id="digital-${clock.id}">00:00:00</div>
-                        <div class="text-xs flex items-center justify-center gap-2 mb-4">
-                            <span class="live-indicator"></span>
-                            <span id="dst-${clock.id}" class="text-cyan-300 font-bold uppercase"></span>
-                        </div>
-                        <div class="pt-4 border-t border-white/10 text-[10px] text-gray-500 uppercase tracking-tighter">
-                            ${t.update}: <span id="update-${clock.id}">-</span>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
+            const formatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: currentTimezone,
+                hour: 'numeric', minute: 'numeric', second: 'numeric',
+                year: 'numeric', month: 'long', day: 'numeric',
+                hour12: false
             });
-            updateTimes();
+
+            const parts = formatter.formatToParts(now);
+            const h = parseInt(parts.find(p => p.type === 'hour').value);
+            const m = parseInt(parts.find(p => p.type === 'minute').value);
+            const s = parseInt(parts.find(p => p.type === 'second').value);
+            
+            // Digitálny display
+            document.getElementById('digitalTime').textContent = 
+                `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            
+            // Dátum
+            const dateStr = now.toLocaleDateString(currentLang === 'sk' ? 'sk-SK' : 'en-US', { 
+                timeZone: currentTimezone, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+            });
+            document.getElementById('fullDate').textContent = dateStr;
+
+            // Analógové ručičky
+            const sDeg = (s / 60) * 360;
+            const mDeg = (m / 60) * 360 + (s / 60) * 6;
+            const hDeg = (h % 12 / 12) * 360 + (m / 60) * 30;
+
+            document.getElementById('s-hand').style.transform = `translateX(-50%) rotate(${sDeg}deg)`;
+            document.getElementById('m-hand').style.transform = `translateX(-50%) rotate(${mDeg}deg)`;
+            document.getElementById('h-hand').style.transform = `translateX(-50%) rotate(${hDeg}deg)`;
+
+            updateMeta(now);
+            
+            // Atmosféra
+            const isNight = h < 6 || h > 19;
+            document.getElementById('glow').style.background = isNight 
+                ? 'radial-gradient(circle, rgba(188, 19, 254, 0.15) 0%, transparent 70%)'
+                : 'radial-gradient(circle, rgba(0, 243, 255, 0.2) 0%, transparent 70%)';
+            document.getElementById('dayNightLabel').textContent = isNight ? translations[currentLang].night : translations[currentLang].day;
         }
 
-        function updateTimes() {
-            activeClocks.forEach(clock => {
-                const now = new Date();
-                
-                try {
-                    const formatter = new Intl.DateTimeFormat('en-US', {
-                        timeZone: clock.timezone,
-                        hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false
-                    });
-                    
-                    const parts = formatter.formatToParts(now);
-                    const h = parseInt(parts.find(p => p.type === 'hour').value);
-                    const m = parseInt(parts.find(p => p.type === 'minute').value);
-                    const s = parseInt(parts.find(p => p.type === 'second').value);
+        function updateMeta(now) {
+            const t = translations[currentLang];
+            const tzName = new Intl.DateTimeFormat('en-US', { timeZone: currentTimezone, timeZoneName: 'shortOffset' })
+                .formatToParts(now).find(p => p.type === 'timeZoneName').value;
+            document.getElementById('utc-offset').textContent = tzName;
 
-                    const digital = document.getElementById(`digital-${clock.id}`);
-                    if (digital) {
-                        digital.textContent = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-                    }
+            const isDST = checkDST(currentTimezone);
+            const tag = document.getElementById('dstTag');
+            tag.textContent = isDST ? t.dstActive : t.dstInactive;
+            tag.className = `tag ${isDST ? 'tag-dst' : 'tag-standard'}`;
 
-                    if (clock.mode !== 'digital-only') {
-                        const card = document.getElementById(`card-${clock.id}`);
-                        if (card) {
-                            const hourHand = card.querySelector('.hour-hand');
-                            const minHand = card.querySelector('.min-hand');
-                            const secHand = card.querySelector('.sec-hand');
-
-                            const sDeg = (s / 60) * 360;
-                            const mDeg = (m / 60) * 360 + (s / 60) * 6;
-                            const hDeg = (h % 12 / 12) * 360 + (m / 60) * 30;
-
-                            if(secHand) secHand.style.transform = `translateX(-50%) rotate(${sDeg}deg)`;
-                            if(minHand) minHand.style.transform = `translateX(-50%) rotate(${mDeg}deg)`;
-                            if(hourHand) hourHand.style.transform = `translateX(-50%) rotate(${hDeg}deg)`;
-                        }
-                    }
-
-                    const dstSpan = document.getElementById(`dst-${clock.id}`);
-                    if (dstSpan) {
-                        const isDST = checkDST(clock.timezone);
-                        const t = translations[currentLang] || translations['en'];
-                        dstSpan.textContent = isDST ? t.dstActive : t.dstInactive;
-                        document.getElementById(`update-${clock.id}`).textContent = now.toLocaleTimeString(currentLang === 'sk' ? 'sk-SK' : 'en-US');
-                    }
-                } catch (e) {
-                    console.error("Chyba pri výpočte času pre:", clock.timezone, e);
-                }
-            });
+            const nextChange = isDST ? "Október" : "Marec";
+            document.getElementById('next-change').textContent = nextChange + " " + now.getFullYear();
         }
 
         function checkDST(timezone) {
             const now = new Date();
-            try {
-                const jan = new Date(now.getFullYear(), 0, 1);
-                const jul = new Date(now.getFullYear(), 6, 1);
-                
-                const getOffset = (date) => {
-                    const parts = new Intl.DateTimeFormat('en-US', {
-                        timeZone: timezone,
-                        timeZoneName: 'longOffset'
-                    }).formatToParts(date);
-                    const offsetPart = parts.find(p => p.type === 'timeZoneName').value; // e.g. "GMT+1"
-                    return offsetPart;
-                };
-
-                const janOff = getOffset(jan);
-                const julOff = getOffset(jul);
-                const currOff = getOffset(now);
-
-                if (janOff === julOff) return false;
-                
-                // Letný čas je zvyčajne ten s väčším posunom (napr +2 vs +1)
-                const extractNum = (off) => {
-                    const m = off.match(/([+-]\d+)/);
-                    return m ? parseInt(m[1]) : 0;
-                };
-
-                return extractNum(currOff) === Math.max(extractNum(janOff), extractNum(julOff));
-            } catch(e) { return false; }
-        }
-
-        function addClock() {
-            document.getElementById('modal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('modal').classList.add('hidden');
-        }
-
-        function confirmAddClock() {
-            const tz = document.getElementById('timezoneSelect').value;
-            const name = tz.split('/').pop().replace(/_/g, ' ');
-            const id = 'clock-' + Date.now();
-            
-            activeClocks.push({ id, timezone: tz, name, mode: 'hybrid' });
-            renderClocks();
-            closeModal();
-        }
-
-        function removeClock(id) {
-            activeClocks = activeClocks.filter(c => c.id !== id);
-            renderClocks();
+            const getStdOffset = (tz) => {
+                const date = new Date();
+                const jan = new Date(date.getFullYear(), 0, 1);
+                const jul = new Date(date.getFullYear(), 6, 1);
+                const std = Math.max(
+                    new Date(jan.toLocaleString('en-US', {timeZone: tz})).getTimezoneOffset(),
+                    new Date(jul.toLocaleString('en-US', {timeZone: tz})).getTimezoneOffset()
+                );
+                return std;
+            };
+            const current = new Date(now.toLocaleString('en-US', {timeZone: timezone})).getTimezoneOffset();
+            return current < getStdOffset(timezone);
         }
 
         window.onload = init;
