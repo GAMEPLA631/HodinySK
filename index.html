@@ -3,498 +3,395 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moderné Digitálne Hodiny</title>
+    <title>Chronos Global - Futuristické Svetové Hodiny</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-purple: #bc13fe;
+            --bg-dark: #050505;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1f2937 0%, #0c0a09 100%);
-            color: #d1d5db;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
-            padding: 2rem;
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
         }
-        .container {
+
+        .futuristic-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Sklenený efekt */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(10px);
-            background-color: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            animation: fadeIn 1s ease-out;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
-        .digital-clock {
-            font-family: 'Inter', sans-serif;
+
+        /* Analógové hodiny */
+        .clock-face {
+            width: 200px;
+            height: 200px;
+            border: 4px solid var(--neon-cyan);
+            border-radius: 50%;
+            position: relative;
+            margin: 20px auto;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2), inset 0 0 20px rgba(0, 243, 255, 0.1);
+            transition: all 0.5s ease;
         }
-        .glow {
-            text-shadow: 0 0 10px #60a5fa, 0 0 20px #60a5fa, 0 0 30px #60a5fa;
+
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom;
+            border-radius: 10px;
+            transition: transform 0.05s cubic-bezier(0.1, 2.7, 0.58, 1);
         }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+
+        .hour-hand { width: 6px; height: 50px; background: white; z-index: 3; }
+        .min-hand { width: 4px; height: 70px; background: var(--neon-cyan); z-index: 4; }
+        .sec-hand { width: 2px; height: 85px; background: var(--neon-purple); z-index: 5; }
+
+        .clock-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
         }
-        .button {
-            transition: all 0.2s ease-in-out;
+
+        /* Režimy zobrazenia */
+        .mode-digital-only .clock-face {
+            display: none;
         }
-        .button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(96, 165, 250, 0.3);
+        .mode-digital-only .digital-display {
+            font-size: 5rem;
+            margin: 40px 0;
+            text-shadow: 0 0 20px var(--neon-cyan);
         }
-        .calendar-grid div {
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .live-indicator {
+            width: 10px;
+            height: 10px;
+            background: #00ff00;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            box-shadow: 0 0 8px #00ff00;
+            animation: pulse 2s infinite;
+        }
+
+        select {
+            background: #111;
+            color: var(--neon-cyan);
+            border: 1px solid var(--neon-cyan);
             padding: 8px;
-            text-align: center;
-            border-radius: 8px;
+            border-radius: 5px;
+            outline: none;
         }
-        .calendar-day.current-day {
-            background-color: #60a5fa;
-            color: #fff;
-            font-weight: bold;
+
+        .grid-bg {
+            background-image: linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
         }
-        .calendar-day.selected-day {
-            background-color: #4f46e5;
-            color: #fff;
-            font-weight: bold;
-        }
-        .calendar-day.other-month {
-            color: #4b5563;
-        }
-        .selector-grid {
-            display: grid;
-            gap: 0.5rem;
-            text-align: center;
-        }
-        .selector-item {
-            padding: 0.75rem;
-            border-radius: 0.5rem;
+
+        .toggle-btn {
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s;
+            transition: all 0.3s;
         }
-        .selector-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: scale(1.05);
+        .toggle-btn:hover {
+            background: var(--neon-cyan);
+            color: black;
         }
     </style>
 </head>
-<body class="selection:bg-blue-500 selection:text-white">
+<body class="p-4 md:p-8">
+    <div class="grid-bg"></div>
 
-    <div class="container flex flex-col items-center justify-center p-8 md:p-12 lg:p-16 rounded-3xl max-w-lg w-full text-center">
-        <div class="text-xs md:text-sm lg:text-base font-bold uppercase tracking-wide mb-4">
-            Aktuálny čas a dátum
+    <header class="max-w-6xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div>
+            <h1 class="futuristic-font text-4xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
+                CHRONOS GLOBAL
+            </h1>
+            <p class="text-sm text-gray-400 tracking-widest uppercase mt-1" id="ui-subtitle">Svetový časový engine v3.0</p>
         </div>
-        <div id="clockDisplay" class="digital-clock text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-4 text-blue-300 glow">
-            --:--:--
-        </div>
-        <div id="dateDisplay" class="text-sm md:text-lg lg:text-xl text-gray-400 mb-8">
-            --.--.----
-        </div>
-        
-        <div class="flex space-x-4">
-            <button id="toggleFormatBtn" class="button bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-full shadow-lg">
-                24-hodinový formát
-            </button>
-            <button id="toggleThemeBtn" class="button bg-zinc-700 hover:bg-zinc-800 text-white font-semibold py-2 px-4 rounded-full shadow-lg">
-                Zmeniť tému
-            </button>
-        </div>
-    </div>
-    
-    <div class="container flex flex-col items-center justify-center p-8 md:p-12 lg:p-16 rounded-3xl max-w-lg w-full text-center mt-8">
-        <div class="flex justify-between items-center w-full mb-4">
-            <button id="prevMonthBtn" class="text-white text-xl font-bold p-2 rounded-full hover:bg-white hover:text-black transition-colors duration-200">&lt;</button>
-            <div class="flex items-center space-x-2">
-                <span id="monthDisplay" class="text-white text-lg font-bold p-2 rounded-md cursor-pointer hover:bg-blue-600 transition-colors"></span>
-                <span id="yearDisplay" class="text-white text-lg font-bold p-2 rounded-md cursor-pointer hover:bg-blue-600 transition-colors"></span>
+
+        <div class="flex gap-4 items-center">
+            <div class="flex flex-col items-end">
+                <span class="text-xs text-gray-500 uppercase" id="ui-lang-label">Jazyk systému</span>
+                <select id="langSelector" onchange="changeLanguage()">
+                    <option value="sk">Slovenčina</option>
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
+                    <option value="fr">Français</option>
+                    <option value="es">Español</option>
+                    <option value="jp">日本語</option>
+                    <option value="cn">中文</option>
+                    <option value="ru">Русский</option>
+                </select>
             </div>
-            <button id="nextMonthBtn" class="text-white text-xl font-bold p-2 rounded-full hover:bg-white hover:text-black transition-colors duration-200">&gt;</button>
+            <button onclick="addClock()" class="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-2 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg shadow-cyan-900/20">
+                + <span id="ui-add-btn">Pridať krajinu</span>
+            </button>
         </div>
+    </header>
 
-        <!-- Kalendár pre dni -->
-        <div class="calendar-grid w-full grid grid-cols-7 gap-1 text-sm md:text-base">
-            <div class="font-bold text-gray-400">Po</div>
-            <div class="font-bold text-gray-400">Ut</div>
-            <div class="font-bold text-gray-400">St</div>
-            <div class="font-bold text-gray-400">Št</div>
-            <div class="font-bold text-gray-400">Pi</div>
-            <div class="font-bold text-gray-400">So</div>
-            <div class="font-bold text-gray-400">Ne</div>
-        </div>
-        <div id="calendar" class="calendar-grid w-full grid grid-cols-7 gap-1 mt-2">
-            <!-- Dni sa vygenerujú sem -->
-        </div>
+    <main id="clocksGrid" class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Karty hodín sa vygenerujú tu -->
+    </main>
 
-        <!-- Výber mesiaca -->
-        <div id="monthSelector" class="hidden selector-grid w-full grid-cols-3"></div>
-
-        <!-- Výber roka -->
-        <div id="yearSelector" class="hidden selector-grid w-full grid-cols-4"></div>
-
-        <button id="todayBtn" class="button bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-full shadow-lg mt-4">
-            Dnes
-        </button>
-    </div>
-
-    <div class="container flex flex-col items-center justify-center p-8 md:p-12 lg:p-16 rounded-3xl max-w-lg w-full text-center mt-8">
-        <h2 class="text-lg md:text-xl font-bold uppercase tracking-wide mb-4">Meniny</h2>
-        <div id="namedayDisplay" class="text-sm md:text-lg text-white">
-            Vyberte deň v kalendári.
+    <!-- Modal pre výber krajiny -->
+    <div id="modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center z-50">
+        <div class="glass p-8 w-full max-w-md border-cyan-500/50">
+            <h2 class="futuristic-font text-2xl mb-6 text-cyan-400" id="ui-modal-title">Vyberte región</h2>
+            <select id="timezoneSelect" class="w-full mb-6 text-lg">
+                <!-- Naplnené cez JS -->
+            </select>
+            <div class="flex justify-end gap-4">
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white" id="ui-cancel">Zrušiť</button>
+                <button onclick="confirmAddClock()" class="bg-cyan-500 px-6 py-2 rounded-lg font-bold" id="ui-confirm">Pridať</button>
+            </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Logika digitálnych hodín ---
-            const clockDisplay = document.getElementById('clockDisplay');
-            const dateDisplay = document.getElementById('dateDisplay');
-            const toggleFormatBtn = document.getElementById('toggleFormatBtn');
-            const toggleThemeBtn = document.getElementById('toggleThemeBtn');
-            let is24HourFormat = true;
-            let currentTheme = 'dark';
+        const translations = {
+            sk: { subtitle: "Svetový časový engine v3.0", langLabel: "Jazyk systému", addBtn: "Pridať krajinu", modalTitle: "Vyberte región", cancel: "Zrušiť", confirm: "Pridať", update: "Posledná aktualizácia", dstActive: "DST Aktívne (Letný čas)", dstInactive: "Štandardný čas (Zimný)", modeLabel: "Prepnúť režim" },
+            en: { subtitle: "World Time Engine v3.0", langLabel: "System Language", addBtn: "Add Country", modalTitle: "Select Region", cancel: "Cancel", confirm: "Add", update: "Last Update", dstActive: "DST Active (Summer)", dstInactive: "Standard Time (Winter)", modeLabel: "Toggle Mode" },
+            de: { subtitle: "Weltzeit-Engine v3.0", langLabel: "Systemsprache", addBtn: "Land hinzufügen", modalTitle: "Region wählen", cancel: "Abbrechen", confirm: "Hinzufügen", update: "Letztes Update", dstActive: "Sommerzeit aktiv", dstInactive: "Standardzeit (Winter)", modeLabel: "Modus umschalten" },
+            jp: { subtitle: "世界時間エンジン v3.0", langLabel: "システム言語", addBtn: "国を追加", modalTitle: "地域を選択", cancel: "キャンセル", confirm: "追加", update: "最終更新", dstActive: "夏時間有効", dstInactive: "標準時間", modeLabel: "モード切替" }
+        };
 
-            const daysOfWeek = ["Nedeľa", "Pondelok", "Utorok", "Streda", "Štvrtok", "Piatok", "Sobota"];
+        let currentLang = 'sk';
+        let activeClocks = [
+            { id: 'local', timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, name: 'Lokálny čas', mode: 'hybrid' },
+            { id: 'new-york', timezone: 'America/New_York', name: 'New York', mode: 'hybrid' },
+            { id: 'tokyo', timezone: 'Asia/Tokyo', name: 'Tokyo', mode: 'hybrid' }
+        ];
 
-            function updateClock() {
+        const timezones = Intl.supportedValuesOf('timeZone');
+
+        function init() {
+            populateTimezones();
+            renderClocks();
+            setInterval(updateTimes, 1000);
+            updateUIStrings();
+        }
+
+        function populateTimezones() {
+            const select = document.getElementById('timezoneSelect');
+            timezones.forEach(tz => {
+                const opt = document.createElement('option');
+                opt.value = tz;
+                opt.textContent = tz.replace(/_/g, ' ');
+                select.appendChild(opt);
+            });
+        }
+
+        function updateUIStrings() {
+            const t = translations[currentLang] || translations['en'];
+            document.getElementById('ui-subtitle').textContent = t.subtitle;
+            document.getElementById('ui-lang-label').textContent = t.langLabel;
+            document.getElementById('ui-add-btn').textContent = t.addBtn;
+            document.getElementById('ui-modal-title').textContent = t.modalTitle;
+            document.getElementById('ui-cancel').textContent = t.cancel;
+            document.getElementById('ui-confirm').textContent = t.confirm;
+        }
+
+        function changeLanguage() {
+            currentLang = document.getElementById('langSelector').value;
+            updateUIStrings();
+            renderClocks();
+        }
+
+        function toggleMode(id) {
+            const clock = activeClocks.find(c => c.id === id);
+            if (clock) {
+                clock.mode = clock.mode === 'hybrid' ? 'digital-only' : 'hybrid';
+                renderClocks();
+            }
+        }
+
+        function renderClocks() {
+            const grid = document.getElementById('clocksGrid');
+            grid.innerHTML = '';
+            
+            activeClocks.forEach(clock => {
+                const card = document.createElement('div');
+                const isDigitalOnly = clock.mode === 'digital-only';
+                card.className = `glass p-6 relative overflow-hidden group hover:border-cyan-500/50 transition-all ${isDigitalOnly ? 'mode-digital-only' : ''}`;
+                card.id = `card-${clock.id}`;
+                
+                const t = translations[currentLang] || translations['en'];
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="futuristic-font text-xl text-cyan-400 uppercase tracking-wider">${clock.name}</h3>
+                            <p class="text-xs text-gray-500">${clock.timezone}</p>
+                        </div>
+                        <div class="flex gap-2">
+                             <button onclick="toggleMode('${clock.id}')" class="toggle-btn uppercase futuristic-font">
+                                ${isDigitalOnly ? 'Analog' : 'Digital'}
+                            </button>
+                            <button onclick="removeClock('${clock.id}')" class="text-gray-600 hover:text-red-500 transition-colors text-xl">✕</button>
+                        </div>
+                    </div>
+
+                    <div class="clock-face" id="analog-${clock.id}">
+                        <div class="clock-center"></div>
+                        <div class="hand hour-hand"></div>
+                        <div class="hand min-hand"></div>
+                        <div class="hand sec-hand"></div>
+                    </div>
+
+                    <div class="text-center mt-6">
+                        <div class="futuristic-font ${isDigitalOnly ? 'text-6xl my-10' : 'text-4xl'} font-bold tracking-widest text-white mb-2 digital-display transition-all" id="digital-${clock.id}">00:00:00</div>
+                        <div class="text-xs flex items-center justify-center gap-2 mb-4">
+                            <span class="live-indicator"></span>
+                            <span id="dst-${clock.id}" class="text-cyan-300 font-bold uppercase"></span>
+                        </div>
+                        <div class="pt-4 border-t border-white/10 text-[10px] text-gray-500 uppercase tracking-tighter">
+                            ${t.update}: <span id="update-${clock.id}">-</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            updateTimes();
+        }
+
+        function updateTimes() {
+            activeClocks.forEach(clock => {
                 const now = new Date();
-                let hours = now.getHours();
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
                 
-                let ampm = '';
-                if (!is24HourFormat) {
-                    ampm = hours >= 12 ? ' PM' : ' AM';
-                    hours = hours % 12;
-                    hours = hours ? hours : 12;
-                }
-                
-                const timeString = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}${ampm}`;
-                clockDisplay.textContent = timeString;
-
-                const dayOfWeek = daysOfWeek[now.getDay()];
-                const day = String(now.getDate()).padStart(2, '0');
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const year = now.getFullYear();
-                dateDisplay.textContent = `${dayOfWeek}, ${day}.${month}.${year}`;
-            }
-
-            toggleFormatBtn.addEventListener('click', () => {
-                is24HourFormat = !is24HourFormat;
-                toggleFormatBtn.textContent = is24HourFormat ? '24-hodinový formát' : '12-hodinový formát';
-                updateClock();
-            });
-
-            toggleThemeBtn.addEventListener('click', () => {
-                const body = document.body;
-                if (currentTheme === 'dark') {
-                    body.style.background = 'linear-gradient(135deg, #f3e5f5 0%, #b2e2f3 100%)';
-                    body.style.color = '#333';
-                    clockDisplay.style.color = '#7c3aed';
-                    document.querySelectorAll('.container').forEach(el => {
-                        el.style.borderColor = 'rgba(0, 0, 0, 0.1)';
-                        el.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+                try {
+                    const formatter = new Intl.DateTimeFormat('en-US', {
+                        timeZone: clock.timezone,
+                        hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false
                     });
-                    toggleThemeBtn.classList.remove('bg-zinc-700', 'hover:bg-zinc-800');
-                    toggleThemeBtn.classList.add('bg-gray-400', 'hover:bg-gray-500');
-                    currentTheme = 'light';
-                } else {
-                    body.style.background = 'linear-gradient(135deg, #1f2937 0%, #0c0a09 100%)';
-                    body.style.color = '#d1d5db';
-                    clockDisplay.style.color = '#60a5fa';
-                    document.querySelectorAll('.container').forEach(el => {
-                        el.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                        el.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                    });
-                    toggleThemeBtn.classList.remove('bg-gray-400', 'hover:bg-gray-500');
-                    toggleThemeBtn.classList.add('bg-zinc-700', 'hover:bg-zinc-800');
-                    currentTheme = 'dark';
-                }
-            });
-
-            setInterval(updateClock, 1000);
-            updateClock();
-
-            // --- Logika kalendára a menín ---
-            const calendarEl = document.getElementById('calendar');
-            const monthDisplay = document.getElementById('monthDisplay');
-            const yearDisplay = document.getElementById('yearDisplay');
-            const prevMonthBtn = document.getElementById('prevMonthBtn');
-            const nextMonthBtn = document.getElementById('nextMonthBtn');
-            const namedayDisplay = document.getElementById('namedayDisplay');
-            const monthSelector = document.getElementById('monthSelector');
-            const yearSelector = document.getElementById('yearSelector');
-            const todayBtn = document.getElementById('todayBtn');
-            
-            const months = ["Január", "Február", "Marec", "Apríl", "Máj", "Jún", "Júl", "August", "September", "Október", "November", "December"];
-            
-            let today = new Date();
-            let currentMonth = today.getMonth();
-            let currentYear = today.getFullYear();
-            let selectedDate = today.getDate();
-
-            const nameDays = {
-                "1-1": "Nový rok, Alexandra", "1-2": "Karina", "1-3": "Daniela",
-                "1-4": "Drahoslav", "1-5": "Andrea", "1-6": "Antónia",
-                "1-7": "Bohuslava", "1-8": "Severín", "1-9": "Alexej",
-                "1-10": "Dáša", "1-11": "Malvína", "1-12": "Ernest",
-                "1-13": "Bohumil", "1-14": "Dobroslav", "1-15": "Kristína",
-                "1-16": "Mária", "1-17": "Nataša", "1-18": "Bohdana",
-                "1-19": "Drahomíra", "1-20": "Sebastian", "1-21": "Agnesa",
-                "1-22": "Zora", "1-23": "Miloš", "1-24": "Timotej",
-                "1-25": "Gejza", "1-26": "Vendelín", "1-27": "Tatiana",
-                "1-28": "Alfonz", "1-29": "Gašpar", "1-30": "Ema",
-                "1-31": "Emil",
-                "2-1": "Tatiana", "2-2": "Erik", "2-3": "Blažej",
-                "2-4": "Veronika", "2-5": "Agáta", "2-6": "Dorota",
-                "2-7": "Vanda", "2-8": "Zdenko", "2-9": "Gabriela",
-                "2-10": "Jaromír", "2-11": "Ľudmila", "2-12": "Jana",
-                "2-13": "Valentín", "2-14": "Želmíra", "2-15": "Viktor",
-                "2-16": "Drahomír", "2-17": "Milada", "2-18": "Jaroslava",
-                "2-19": "Vratislav", "2-20": "Lívia", "2-21": "Eleonóra",
-                "2-22": "Etela", "2-23": "Roman", "2-24": "Matej",
-                "2-25": "Hilda", "2-26": "Viktor", "2-27": "Albín",
-                "2-28": "Dezider",
-                "3-1": "Albína", "3-2": "Anežka", "3-3": "Bohumír",
-                "3-4": "Kazimír", "3-5": "Eugen", "3-6": "František",
-                "3-7": "Tomáš", "3-8": "Alan", "3-9": "Františka",
-                "3-10": "Vlastimil", "3-11": "Emília", "3-12": "Jozef",
-                "3-13": "Gregora", "3-14": "Radoslava", "3-15": "Svetozár",
-                "3-16": "Boleslav", "3-17": "Ľubomír", "3-18": "Miroslav",
-                "3-19": "Svetlana", "3-20": "Vladimír", "3-21": "Rudolf",
-                "3-22": "Eva", "3-23": "Jozef", "3-24": "Viktor",
-                "3-25": "Rastislav", "3-26": "Tibor", "3-27": "Miroslav",
-                "3-28": "Zdenka", "3-29": "Zdenko", "3-30": "Vieroslava",
-                "3-31": "Benjamín",
-                "4-1": "Eugen", "4-2": "Božena", "4-3": "Zlatko",
-                "4-4": "Izidor", "4-5": "Miroslava", "4-6": "Júlia",
-                "4-7": "Erika", "4-8": "Irena", "4-9": "Zuzana",
-                "4-10": "Stanislav", "4-11": "Igor", "4-12": "Július",
-                "4-13": "Svetlana", "4-14": "Ladislav", "4-15": "Svetozár",
-                "4-16": "Rastislav", "4-17": "Rudolf", "4-18": "Dušan",
-                "4-19": "Jaroslav", "4-20": "Vlastimil", "4-21": "Slavomír",
-                "4-22": "Elena", "4-23": "Juraj", "4-24": "Marek",
-                "4-25": "Jana", "4-26": "Radovan", "4-27": "Jozefína",
-                "4-28": "Milena", "4-29": "Marek", "4-30": "Rastislav",
-                "5-1": "Filip", "5-2": "Zuzana", "5-3": "Žaneta",
-                "5-4": "Dominika", "5-5": "Laura", "5-6": "Hermína",
-                "5-7": "Gizela", "5-8": "Monika", "5-9": "Renáta",
-                "5-10": "Štefan", "5-11": "Emília", "5-12": "Júlia",
-                "5-13": "Valéria", "5-14": "Kveta", "5-15": "Žofia",
-                "5-16": "Róbert", "5-17": "Milada", "5-18": "Pavol",
-                "5-19": "Michal", "5-20": "Viera", "5-21": "Zina",
-                "5-22": "Vilma", "5-23": "Vladimír", "5-24": "Blažena",
-                "5-25": "Emanuel", "5-26": "Janka", "5-27": "Marián",
-                "5-28": "Júlia", "5-29": "Vilma", "5-30": "Štefan",
-                "5-31": "Petronela",
-                "6-1": "Ľubomír", "6-2": "Karol", "6-3": "Jana",
-                "6-4": "Jozef", "6-5": "Nataša", "6-6": "Norbert",
-                "6-7": "Róbert", "6-8": "Medard", "6-9": "Stanislava",
-                "6-10": "Margaréta", "6-11": "Kamil", "6-12": "Ľudmila",
-                "6-13": "Anton", "6-14": "Tibor", "6-15": "Vít",
-                "6-16": "Blanka", "6-17": "Adolf", "6-18": "Miloš",
-                "6-19": "Vladimír", "6-20": "Viera", "6-21": "Alojz",
-                "6-22": "Július", "6-23": "Zdenko", "6-24": "Ján",
-                "6-25": "Miloš", "6-26": "Ľudmila", "6-27": "Miroslav",
-                "6-28": "Peter", "6-29": "Pavel", "6-30": "Melánia",
-                "7-1": "Diana", "7-2": "Berta", "7-3": "Miloš",
-                "7-4": "Katarína", "7-5": "Cyril", "7-6": "Patrik",
-                "7-7": "Oliver", "7-8": "Ivan", "7-9": "Amália",
-                "7-10": "Milada", "7-11": "Štefan", "7-12": "Margita",
-                "7-13": "Richard", "7-14": "Vladimír", "7-15": "Róbert",
-                "7-16": "Karol", "7-17": "Dušan", "7-18": "Eliáš",
-                "7-19": "Viktor", "7-20": "Vladimír", "7-21": "Zdenko",
-                "7-22": "Elena", "7-23": "Ondrej", "7-24": "Anna",
-                "7-25": "Božena", "7-26": "Magdaléna", "7-27": "Vladimír",
-                "7-28": "Božena", "7-29": "Ondrej", "7-30": "Milena",
-                "7-31": "Ignác",
-                "8-1": "Božena", "8-2": "Gustáv", "8-3": "Slavomír",
-                "8-4": "Miroslav", "8-5": "Vladimír", "8-6": "Jozef",
-                "8-7": "Mária", "8-8": "Oskar", "8-9": "Ľudmila",
-                "8-10": "Vavrinec", "8-11": "Zuzana", "8-12": "Drahoslav",
-                "8-13": "Svetozár", "8-14": "Hana", "8-15": "Vladimír",
-                "8-16": "Pavel", "8-17": "Ľubomír", "8-18": "Michal",
-                "8-19": "Ján", "8-20": "Zdenko", "8-21": "Elena",
-                "8-22": "Štefan", "8-23": "Hana", "8-24": "Natália",
-                "8-25": "Ľuboš", "8-26": "Viktor", "8-27": "Zdenka",
-                "8-28": "Augustín", "8-29": "Mária", "8-30": "Radoslav",
-                "8-31": "Vladimír",
-                "9-1": "Drahoslav", "9-2": "Linda", "9-3": "Bohumil",
-                "9-4": "Svetozár", "9-5": "Júlia", "9-6": "Zuzana",
-                "9-7": "Alojz", "9-8": "Mária", "9-9": "Ondrej",
-                "9-10": "Patrik", "9-11": "Viktor", "9-12": "Radoslav",
-                "9-13": "Ľudmila", "9-14": "Rastislav", "9-15": "Ján",
-                "9-16": "Gorazd", "9-17": "Mária", "9-18": "Milan",
-                "9-19": "Vladimír", "9-20": "Rastislav", "9-21": "Matúš",
-                "9-22": "Alena", "9-23": "Teodor", "9-24": "Vladimír",
-                "9-25": "Ľudmila", "9-26": "Silvia", "9-27": "Jozef",
-                "9-28": "Václav", "9-29": "Michal", "9-30": "Vladimír",
-                "10-1": "Ľubomír", "10-2": "Oto", "10-3": "Katarína",
-                "10-4": "František", "10-5": "Veronika", "10-6": "Jozef",
-                "10-7": "Anna", "10-8": "Vladimír", "10-9": "Svetlana",
-                "10-10": "Marcel", "10-11": "Ondrej", "10-12": "Dušan",
-                "10-13": "Vladimír", "10-14": "Jaroslava", "10-15": "Mária",
-                "10-16": "Vladimír", "10-17": "Jozef", "10-18": "Lukáš",
-                "10-19": "Mária", "10-20": "Vendelín", "10-21": "Uršuľa",
-                "10-22": "Vladimír", "10-23": "Alojz", "10-24": "Michal",
-                "10-25": "Vladimír", "10-26": "Alojz", "10-27": "Mária",
-                "10-28": "Vladimír", "10-29": "Ľudovít", "10-30": "Jozef",
-                "10-31": "Vladimír",
-                "11-1": "Vladimír", "11-2": "Jozef", "11-3": "Vladimír",
-                "11-4": "Jozef", "11-5": "Vladimír", "11-6": "Ľudmila",
-                "11-7": "Vladimír", "11-8": "Ondrej", "11-9": "Svetlana",
-                "11-10": "Marcel", "11-11": "Martin", "11-12": "Rudolf",
-                "11-13": "Stanka", "11-14": "Jozef", "11-15": "Albert",
-                "11-16": "Silvia", "11-17": "Vladimír", "11-18": "Mária",
-                "11-19": "Alžbeta", "11-20": "Vladimír", "11-21": "Milada",
-                "11-22": "Vlasta", "11-23": "Klement", "11-24": "Zuzana",
-                "11-25": "Katarína", "11-26": "Vladimír", "11-27": "Jozef",
-                "11-28": "Vladimír", "11-29": "Jakub", "11-30": "Ondrej",
-                "12-1": "Ľudmila", "12-2": "Mária", "12-3": "Vladimír",
-                "12-4": "Bohumil", "12-5": "Alfonz", "12-6": "Mikuláš",
-                "12-7": "Ambróz", "12-8": "Marcela", "12-9": "Vladimír",
-                "12-10": "Judita", "12-11": "Vladimír", "12-12": "Jana",
-                "12-13": "Lucia", "12-14": "Otília", "12-15": "Alžbeta",
-                "12-16": "Vladimír", "12-17": "Alžbeta", "12-18": "Vladimír",
-                "12-19": "Jana", "12-20": "Jozef", "12-21": "Vladimír",
-                "12-22": "Alžbeta", "12-23": "Jozef", "12-24": "Adam",
-                "12-25": "Štefan", "12-26": "Sára", "12-27": "Ján",
-                "12-28": "Sára", "12-29": "Mária", "12-30": "Vladimír",
-                "12-31": "Silvester"
-            };
-
-            function updateNameDayDisplay(date) {
-                const key = `${date.getMonth() + 1}-${date.getDate()}`;
-                const name = nameDays[key] || "Nie sú zadané meniny";
-                namedayDisplay.textContent = `Meniny má: ${name}`;
-            }
-
-            function renderMonthSelector() {
-                monthSelector.innerHTML = '';
-                monthSelector.classList.remove('hidden');
-                yearSelector.classList.add('hidden');
-                calendarEl.classList.add('hidden');
-                
-                months.forEach((month, index) => {
-                    const monthEl = document.createElement('div');
-                    monthEl.textContent = month;
-                    monthEl.classList.add('selector-item', 'text-sm');
-                    if (index === currentMonth) {
-                        monthEl.classList.add('bg-blue-600');
-                    }
-                    monthEl.addEventListener('click', () => {
-                        currentMonth = index;
-                        renderCalendar();
-                    });
-                    monthSelector.appendChild(monthEl);
-                });
-            }
-
-            function renderYearSelector() {
-                yearSelector.innerHTML = '';
-                yearSelector.classList.remove('hidden');
-                monthSelector.classList.add('hidden');
-                calendarEl.classList.add('hidden');
-
-                const startYear = currentYear - 10;
-                const endYear = currentYear + 10;
-                
-                for (let i = startYear; i <= endYear; i++) {
-                    const yearEl = document.createElement('div');
-                    yearEl.textContent = i;
-                    yearEl.classList.add('selector-item', 'text-sm');
-                    if (i === currentYear) {
-                        yearEl.classList.add('bg-blue-600');
-                    }
-                    yearEl.addEventListener('click', () => {
-                        currentYear = i;
-                        renderCalendar();
-                    });
-                    yearSelector.appendChild(yearEl);
-                }
-            }
-
-            function renderCalendar() {
-                const date = new Date(currentYear, currentMonth);
-                const firstDay = (date.getDay() + 6) % 7;
-                const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-                
-                calendarEl.innerHTML = '';
-                calendarEl.classList.remove('hidden');
-                monthSelector.classList.add('hidden');
-                yearSelector.classList.add('hidden');
-                
-                monthDisplay.textContent = months[currentMonth];
-                yearDisplay.textContent = currentYear;
-                
-                for (let i = 0; i < firstDay; i++) {
-                    const emptyDay = document.createElement('div');
-                    calendarEl.appendChild(emptyDay);
-                }
-                
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const dayEl = document.createElement('div');
-                    dayEl.textContent = day;
-                    dayEl.classList.add('calendar-day', 'cursor-pointer', 'hover:bg-blue-600', 'hover:text-white', 'transition-colors');
                     
-                    if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
-                        dayEl.classList.add('current-day');
+                    const parts = formatter.formatToParts(now);
+                    const h = parseInt(parts.find(p => p.type === 'hour').value);
+                    const m = parseInt(parts.find(p => p.type === 'minute').value);
+                    const s = parseInt(parts.find(p => p.type === 'second').value);
+
+                    const digital = document.getElementById(`digital-${clock.id}`);
+                    if (digital) {
+                        digital.textContent = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
                     }
-                    if (day === selectedDate && currentMonth === date.getMonth() && currentYear === date.getFullYear()) {
-                         dayEl.classList.add('selected-day');
+
+                    if (clock.mode !== 'digital-only') {
+                        const card = document.getElementById(`card-${clock.id}`);
+                        if (card) {
+                            const hourHand = card.querySelector('.hour-hand');
+                            const minHand = card.querySelector('.min-hand');
+                            const secHand = card.querySelector('.sec-hand');
+
+                            const sDeg = (s / 60) * 360;
+                            const mDeg = (m / 60) * 360 + (s / 60) * 6;
+                            const hDeg = (h % 12 / 12) * 360 + (m / 60) * 30;
+
+                            if(secHand) secHand.style.transform = `translateX(-50%) rotate(${sDeg}deg)`;
+                            if(minHand) minHand.style.transform = `translateX(-50%) rotate(${mDeg}deg)`;
+                            if(hourHand) hourHand.style.transform = `translateX(-50%) rotate(${hDeg}deg)`;
+                        }
                     }
-                    
-                    dayEl.addEventListener('click', () => {
-                        selectedDate = day;
-                        renderCalendar();
-                        updateNameDayDisplay(new Date(currentYear, currentMonth, selectedDate));
-                    });
 
-                    calendarEl.appendChild(dayEl);
+                    const dstSpan = document.getElementById(`dst-${clock.id}`);
+                    if (dstSpan) {
+                        const isDST = checkDST(clock.timezone);
+                        const t = translations[currentLang] || translations['en'];
+                        dstSpan.textContent = isDST ? t.dstActive : t.dstInactive;
+                        document.getElementById(`update-${clock.id}`).textContent = now.toLocaleTimeString(currentLang === 'sk' ? 'sk-SK' : 'en-US');
+                    }
+                } catch (e) {
+                    console.error("Chyba pri výpočte času pre:", clock.timezone, e);
                 }
-            }
-
-            prevMonthBtn.addEventListener('click', () => {
-                currentMonth--;
-                if (currentMonth < 0) {
-                    currentMonth = 11;
-                    currentYear--;
-                }
-                renderCalendar();
             });
+        }
 
-            nextMonthBtn.addEventListener('click', () => {
-                currentMonth++;
-                if (currentMonth > 11) {
-                    currentMonth = 0;
-                    currentYear++;
-                }
-                renderCalendar();
-            });
+        function checkDST(timezone) {
+            const now = new Date();
+            try {
+                const jan = new Date(now.getFullYear(), 0, 1);
+                const jul = new Date(now.getFullYear(), 6, 1);
+                
+                const getOffset = (date) => {
+                    const parts = new Intl.DateTimeFormat('en-US', {
+                        timeZone: timezone,
+                        timeZoneName: 'longOffset'
+                    }).formatToParts(date);
+                    const offsetPart = parts.find(p => p.type === 'timeZoneName').value; // e.g. "GMT+1"
+                    return offsetPart;
+                };
+
+                const janOff = getOffset(jan);
+                const julOff = getOffset(jul);
+                const currOff = getOffset(now);
+
+                if (janOff === julOff) return false;
+                
+                // Letný čas je zvyčajne ten s väčším posunom (napr +2 vs +1)
+                const extractNum = (off) => {
+                    const m = off.match(/([+-]\d+)/);
+                    return m ? parseInt(m[1]) : 0;
+                };
+
+                return extractNum(currOff) === Math.max(extractNum(janOff), extractNum(julOff));
+            } catch(e) { return false; }
+        }
+
+        function addClock() {
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function confirmAddClock() {
+            const tz = document.getElementById('timezoneSelect').value;
+            const name = tz.split('/').pop().replace(/_/g, ' ');
+            const id = 'clock-' + Date.now();
             
-            monthDisplay.addEventListener('click', renderMonthSelector);
-            yearDisplay.addEventListener('click', renderYearSelector);
-            
-            todayBtn.addEventListener('click', () => {
-                today = new Date();
-                currentMonth = today.getMonth();
-                currentYear = today.getFullYear();
-                selectedDate = today.getDate();
-                renderCalendar();
-                updateNameDayDisplay(new Date());
-            });
+            activeClocks.push({ id, timezone: tz, name, mode: 'hybrid' });
+            renderClocks();
+            closeModal();
+        }
 
-            renderCalendar();
-            updateNameDayDisplay(new Date());
-        });
+        function removeClock(id) {
+            activeClocks = activeClocks.filter(c => c.id !== id);
+            renderClocks();
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
