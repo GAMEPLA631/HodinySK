@@ -60,6 +60,62 @@
             width: 100%;
         }
 
+        /* Auth Overlay */
+        #authOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 30px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .auth-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .auth-input:focus {
+            border-color: var(--accent);
+        }
+
+        .auth-btn {
+            width: 100%;
+            background: var(--accent);
+            color: black;
+            font-weight: bold;
+            padding: 12px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .auth-btn:hover {
+            opacity: 0.9;
+        }
+
         /* Analógové hodiny - responzívne */
         .clock-container {
             position: relative;
@@ -210,6 +266,21 @@
     </style>
 </head>
 <body class="p-4 md:p-6">
+    <!-- Auth Screen -->
+    <div id="authOverlay">
+        <div class="auth-card">
+            <h2 class="header-font text-xl mb-6 font-bold">SECUR<span class="text-cyan-400">SYNC</span></h2>
+            <div id="authMessage" class="text-xs text-red-400 mb-4 hidden"></div>
+            
+            <input type="tel" id="authPhone" class="auth-input" placeholder="Telefónne číslo">
+            <input type="password" id="authPass" class="auth-input" placeholder="Heslo (presne 10 miest)" maxlength="10">
+            
+            <button onclick="handleLogin()" class="auth-btn mb-3">Prihlásiť sa</button>
+            <p class="text-[10px] text-gray-500 mb-3">Nemáte účet?</p>
+            <button onclick="handleRegister()" class="text-xs text-cyan-400 underline uppercase tracking-widest">Zaregistrovať sa</button>
+        </div>
+    </div>
+
     <div class="bg-glow" id="glow"></div>
 
     <header class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 w-full max-w-7xl mx-auto">
@@ -227,6 +298,7 @@
                 <option value="de">DE</option>
                 <option value="jp">JP</option>
             </select>
+            <button onclick="logout()" class="text-[10px] opacity-50 hover:opacity-100 uppercase tracking-tighter">Odhlásiť</button>
         </div>
     </header>
 
@@ -284,10 +356,91 @@
     </main>
 
     <footer class="mt-6 mb-4 text-center text-[9px] text-gray-600 uppercase tracking-widest">
-        Quantum Engine v6.0 Mobile // Multiversal Sync
+        Quantum Engine v6.0 Mobile // Multiversal Sync // Secured by IndexedDB
     </footer>
 
     <script>
+        // DATABASE LOGIC (IndexedDB)
+        const DB_NAME = 'ChronosGlobalDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'users';
+        let db;
+
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME, { keyPath: 'phone' });
+            }
+        };
+        request.onsuccess = (e) => { db = e.target.result; checkPersistentLogin(); };
+        request.onerror = (e) => console.error("Database error", e);
+
+        function showAuthMsg(msg, isError = true) {
+            const el = document.getElementById('authMessage');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+            el.className = isError ? 'text-xs text-red-400 mb-4' : 'text-xs text-cyan-400 mb-4';
+        }
+
+        async function handleRegister() {
+            const phone = document.getElementById('authPhone').value.trim();
+            const pass = document.getElementById('authPass').value.trim();
+
+            if (!phone || !/^\d+$/.test(phone)) {
+                return showAuthMsg("Zadajte platné telefónne číslo.");
+            }
+            // POŽIADAVKA: 10 miestne registrovanie (heslo musí mať 10 znakov)
+            if (pass.length !== 10) {
+                return showAuthMsg("Bezpečnostné pravidlo: Heslo musí mať presne 10 znakov.");
+            }
+
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            
+            const checkRequest = store.get(phone);
+            checkRequest.onsuccess = () => {
+                if (checkRequest.result) {
+                    showAuthMsg("Toto číslo je už zaregistrované.");
+                } else {
+                    store.add({ phone, pass });
+                    showAuthMsg("Registrácia úspešná! Použite 10-miestne heslo.", false);
+                }
+            };
+        }
+
+        async function handleLogin() {
+            const phone = document.getElementById('authPhone').value.trim();
+            const pass = document.getElementById('authPass').value.trim();
+
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const getReq = store.get(phone);
+
+            getReq.onsuccess = () => {
+                const user = getReq.result;
+                if (user && user.pass === pass) {
+                    localStorage.setItem('chronos_logged_in', phone);
+                    document.getElementById('authOverlay').classList.add('hidden');
+                } else {
+                    showAuthMsg("Nesprávne údaje alebo dĺžka hesla.");
+                }
+            };
+        }
+
+        function checkPersistentLogin() {
+            if (localStorage.getItem('chronos_logged_in')) {
+                document.getElementById('authOverlay').classList.add('hidden');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('chronos_logged_in');
+            document.getElementById('authOverlay').classList.remove('hidden');
+            showAuthMsg("Boli ste odhlásení.", false);
+        }
+
+        // APP LOGIC
         const translations = {
             sk: { utc: "Posun voči UTC", update: "Motor času", next: "Ďalšia zmena", signal: "AKTÍVNY", dstActive: "Letný čas", dstInactive: "Zimný čas", day: "Deň", night: "Noc" },
             en: { utc: "UTC Offset", update: "Time Engine", next: "Next Change", signal: "ACTIVE", dstActive: "Daylight Saving", dstInactive: "Standard Time", day: "Day", night: "Night" },
@@ -305,7 +458,6 @@
             populateTimezones();
             updateUI();
             
-            // Auto-detekcia mobilného režimu pri štarte pre malé displeje
             if (window.innerWidth < 480) {
                 setViewMode('digital');
             }
@@ -316,6 +468,7 @@
 
         function populateTimezones() {
             const select = document.getElementById('timezoneSelect');
+            if(!select) return;
             const groups = {};
             timezones.forEach(tz => {
                 const continent = tz.split('/')[0];
@@ -342,10 +495,12 @@
         function setViewMode(mode) {
             viewMode = mode;
             const stage = document.getElementById('mainStage');
+            if(!stage) return;
             stage.className = `main-stage p-6 md:p-12 flex flex-col items-center relative overflow-hidden mode-${mode}-only`;
             
             ['hybrid', 'digital', 'analog'].forEach(m => {
-                document.getElementById(`btn-${m}`).classList.toggle('active', m === mode);
+                const btn = document.getElementById(`btn-${m}`);
+                if (btn) btn.classList.toggle('active', m === mode);
             });
         }
 
@@ -410,8 +565,8 @@
 
         function updateMeta(now) {
             const t = translations[currentLang];
-            const tzName = new Intl.DateTimeFormat('en-US', { timeZone: currentTimezone, timeZoneName: 'shortOffset' })
-                .formatToParts(now).find(p => p.type === 'timeZoneName').value;
+            const tzParts = new Intl.DateTimeFormat('en-US', { timeZone: currentTimezone, timeZoneName: 'shortOffset' }).formatToParts(now);
+            const tzName = tzParts.find(p => p.type === 'timeZoneName').value;
             document.getElementById('utc-offset').textContent = tzName;
 
             const isDST = checkDST(currentTimezone);
