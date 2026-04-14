@@ -419,7 +419,10 @@
                 db.createObjectStore(STORE_NAME, { keyPath: 'phone' });
             }
         };
-        request.onsuccess = (e) => { db = e.target.result; checkPersistentLogin(); };
+        request.onsuccess = (e) => { 
+            db = e.target.result; 
+            checkPersistentLogin(); 
+        };
         request.onerror = (e) => console.error("Database error", e);
 
         function showAuthMsg(msg, isError = true) {
@@ -451,6 +454,8 @@
                 return showAuthMsg("Musíte vyplniť všetkých 10 údajov!");
             }
 
+            if (!db) return showAuthMsg("Databáza nie je pripravená.");
+
             const transaction = db.transaction([STORE_NAME], 'readwrite');
             const store = transaction.objectStore(STORE_NAME);
             
@@ -459,11 +464,14 @@
                 if (checkRequest.result) {
                     showAuthMsg("Toto číslo je už zaregistrované.");
                 } else {
-                    store.add({ 
+                    const addReq = store.add({ 
                         phone, pass, name, birth, email, city, country, job, bio, zone 
                     });
-                    showAuthMsg("Registrácia úspešná! Môžete sa prihlásiť.", false);
-                    setTimeout(() => toggleAuthMode(false), 1500);
+                    addReq.onsuccess = () => {
+                        showAuthMsg("Registrácia úspešná! Môžete sa prihlásiť.", false);
+                        setTimeout(() => toggleAuthMode(false), 1500);
+                    };
+                    addReq.onerror = () => showAuthMsg("Chyba pri zápise do databázy.");
                 }
             };
         }
@@ -471,6 +479,8 @@
         async function handleLogin() {
             const phone = document.getElementById('loginPhone').value.trim();
             const pass = document.getElementById('loginPass').value.trim();
+
+            if (!db) return showAuthMsg("Databáza nie je pripravená.");
 
             const transaction = db.transaction([STORE_NAME], 'readonly');
             const store = transaction.objectStore(STORE_NAME);
@@ -485,6 +495,7 @@
                     showAuthMsg("Nesprávne telefónne číslo alebo heslo.");
                 }
             };
+            getReq.onerror = () => showAuthMsg("Chyba pri čítaní z databázy.");
         }
 
         function checkPersistentLogin() {
