@@ -70,17 +70,19 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            overflow-y: auto;
         }
 
         .auth-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(30px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 40px;
+            padding: 30px;
             border-radius: 30px;
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
             text-align: center;
+            margin: auto;
         }
 
         .auth-input {
@@ -88,11 +90,12 @@
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            padding: 12px 16px;
+            padding: 10px 14px;
             color: white;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             outline: none;
             transition: border-color 0.3s;
+            font-size: 0.9rem;
         }
 
         .auth-input:focus {
@@ -258,6 +261,21 @@
             border-color: var(--accent);
         }
 
+        #registrationFields {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding-right: 5px;
+        }
+
+        #registrationFields::-webkit-scrollbar {
+            width: 4px;
+        }
+        #registrationFields::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
         @media (max-width: 768px) {
             .info-grid { grid-template-columns: 1fr; }
             .digital-time { margin-top: 1rem; }
@@ -269,15 +287,43 @@
     <!-- Auth Screen -->
     <div id="authOverlay">
         <div class="auth-card">
-            <h2 class="header-font text-xl mb-6 font-bold">SECUR<span class="text-cyan-400">SYNC</span></h2>
+            <h2 class="header-font text-xl mb-4 font-bold">SECUR<span class="text-cyan-400">SYNC</span></h2>
             <div id="authMessage" class="text-xs text-red-400 mb-4 hidden"></div>
             
-            <input type="tel" id="authPhone" class="auth-input" placeholder="Telefónne číslo">
-            <input type="password" id="authPass" class="auth-input" placeholder="Heslo (presne 10 miest)" maxlength="10">
-            
-            <button onclick="handleLogin()" class="auth-btn mb-3">Prihlásiť sa</button>
-            <p class="text-[10px] text-gray-500 mb-3">Nemáte účet?</p>
-            <button onclick="handleRegister()" class="text-xs text-cyan-400 underline uppercase tracking-widest">Zaregistrovať sa</button>
+            <div id="loginForm">
+                <input type="tel" id="loginPhone" class="auth-input" placeholder="Telefónne číslo">
+                <input type="password" id="loginPass" class="auth-input" placeholder="Heslo">
+                <button onclick="handleLogin()" class="auth-btn mb-3">Prihlásiť sa</button>
+                <p class="text-[10px] text-gray-500 mb-3">Nemáte účet?</p>
+                <button onclick="toggleAuthMode(true)" class="text-xs text-cyan-400 underline uppercase tracking-widest">Zaregistrovať sa</button>
+            </div>
+
+            <div id="registerForm" class="hidden">
+                <div id="registrationFields">
+                    <!-- 1. Phone -->
+                    <input type="tel" id="regPhone" class="auth-input" placeholder="1. Telefónne číslo">
+                    <!-- 2. Password -->
+                    <input type="password" id="regPass" class="auth-input" placeholder="2. Heslo (bez obmedzenia)">
+                    <!-- 3. Name -->
+                    <input type="text" id="regName" class="auth-input" placeholder="3. Celé meno">
+                    <!-- 4. Birth Date -->
+                    <input type="date" id="regBirth" class="auth-input" placeholder="4. Dátum narodenia">
+                    <!-- 5. Email -->
+                    <input type="email" id="regEmail" class="auth-input" placeholder="5. Emailová adresa">
+                    <!-- 6. City -->
+                    <input type="text" id="regCity" class="auth-input" placeholder="6. Mesto">
+                    <!-- 7. Country -->
+                    <input type="text" id="regCountry" class="auth-input" placeholder="7. Krajina">
+                    <!-- 8. Occupation -->
+                    <input type="text" id="regJob" class="auth-input" placeholder="8. Povolanie">
+                    <!-- 9. Bio -->
+                    <input type="text" id="regBio" class="auth-input" placeholder="9. Krátky životopis">
+                    <!-- 10. Favorite Zone -->
+                    <input type="text" id="regZone" class="auth-input" placeholder="10. Obľúbené časové pásmo">
+                </div>
+                <button onclick="handleRegister()" class="auth-btn mb-3">Vytvoriť účet</button>
+                <button onclick="toggleAuthMode(false)" class="text-xs text-gray-500 underline uppercase tracking-widest">Späť na prihlásenie</button>
+            </div>
         </div>
     </div>
 
@@ -383,16 +429,26 @@
             el.className = isError ? 'text-xs text-red-400 mb-4' : 'text-xs text-cyan-400 mb-4';
         }
 
-        async function handleRegister() {
-            const phone = document.getElementById('authPhone').value.trim();
-            const pass = document.getElementById('authPass').value.trim();
+        function toggleAuthMode(register) {
+            document.getElementById('loginForm').classList.toggle('hidden', register);
+            document.getElementById('registerForm').classList.toggle('hidden', !register);
+            document.getElementById('authMessage').classList.add('hidden');
+        }
 
-            if (!phone || !/^\d+$/.test(phone)) {
-                return showAuthMsg("Zadajte platné telefónne číslo.");
-            }
-            // POŽIADAVKA: 10 miestne registrovanie (heslo musí mať 10 znakov)
-            if (pass.length !== 10) {
-                return showAuthMsg("Bezpečnostné pravidlo: Heslo musí mať presne 10 znakov.");
+        async function handleRegister() {
+            const phone = document.getElementById('regPhone').value.trim();
+            const pass = document.getElementById('regPass').value.trim();
+            const name = document.getElementById('regName').value.trim();
+            const birth = document.getElementById('regBirth').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const city = document.getElementById('regCity').value.trim();
+            const country = document.getElementById('regCountry').value.trim();
+            const job = document.getElementById('regJob').value.trim();
+            const bio = document.getElementById('regBio').value.trim();
+            const zone = document.getElementById('regZone').value.trim();
+
+            if (!phone || !pass || !name || !birth || !email || !city || !country || !job || !bio || !zone) {
+                return showAuthMsg("Musíte vyplniť všetkých 10 údajov!");
             }
 
             const transaction = db.transaction([STORE_NAME], 'readwrite');
@@ -403,15 +459,18 @@
                 if (checkRequest.result) {
                     showAuthMsg("Toto číslo je už zaregistrované.");
                 } else {
-                    store.add({ phone, pass });
-                    showAuthMsg("Registrácia úspešná! Použite 10-miestne heslo.", false);
+                    store.add({ 
+                        phone, pass, name, birth, email, city, country, job, bio, zone 
+                    });
+                    showAuthMsg("Registrácia úspešná! Môžete sa prihlásiť.", false);
+                    setTimeout(() => toggleAuthMode(false), 1500);
                 }
             };
         }
 
         async function handleLogin() {
-            const phone = document.getElementById('authPhone').value.trim();
-            const pass = document.getElementById('authPass').value.trim();
+            const phone = document.getElementById('loginPhone').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
 
             const transaction = db.transaction([STORE_NAME], 'readonly');
             const store = transaction.objectStore(STORE_NAME);
@@ -423,7 +482,7 @@
                     localStorage.setItem('chronos_logged_in', phone);
                     document.getElementById('authOverlay').classList.add('hidden');
                 } else {
-                    showAuthMsg("Nesprávne údaje alebo dĺžka hesla.");
+                    showAuthMsg("Nesprávne telefónne číslo alebo heslo.");
                 }
             };
         }
@@ -438,6 +497,7 @@
             localStorage.removeItem('chronos_logged_in');
             document.getElementById('authOverlay').classList.remove('hidden');
             showAuthMsg("Boli ste odhlásení.", false);
+            toggleAuthMode(false);
         }
 
         // APP LOGIC
